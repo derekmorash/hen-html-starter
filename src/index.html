@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>title</title>
+  <meta name="viewport" content="width=device-width, height=device-height" />
+  <meta property="og:image" content="thumbnail.png" />
+  <!-- import the webpage's stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- import the latest version of hydra synth-->
+  <script src="hydra-synth.js"></script>
+</head>
+
+<body>
+  <script>
+    // Utility functions
+    function random(min, max) {
+      let rand = Math.random();
+      if (typeof min === "undefined") {
+        return rand;
+      } else if (typeof max === "undefined") {
+        if (min instanceof Array) {
+          return min[Math.floor(rand * min.length)];
+        } else {
+          return rand * min;
+        }
+      } else {
+        if (min > max) {
+          const tmp = min;
+          min = max;
+          max = tmp;
+        }
+
+        return rand * (max - min) + min;
+      }
+    }
+
+    function map(current, in_min, in_max, out_min, out_max) {
+      return (current - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    }
+
+    // create a new hydra-synth instance
+    const hydra = new Hydra({
+      detectAudio: false,
+      autoLoop: false
+    })
+    hydra.setResolution(window.innerWidth, window.innerHeight)
+
+    // Resize canvas
+    window.addEventListener('resize', (evt) => {
+      hydra.setResolution(window.innerWidth, window.innerHeight)
+    })
+
+
+
+
+    // Your sketch
+    // ============
+
+    let mainOscFreq = random(60, 100);
+    let mainOscSync = random(2);
+    let mainOscOff = random(1);
+
+    // Update params on click
+    hydra.canvas.addEventListener('click', resetVars)
+
+    function resetVars() {
+      mainOscFreq = random(60, 100);
+      mainOscSync = random(2);
+      mainOscOff = random(1);
+    }
+
+    osc(() => mainOscFreq, () => mainOscSync, () => mainOscOff)
+      .out()
+
+
+
+
+    // Animation loop
+    let deltaTime = 0;
+    let lastFrameTime = performance.now();
+
+    function draw(timestamp) {
+      deltaTime = (timestamp - lastFrameTime) * 0.1;
+      // console.log({deltaTime});
+      hydra.tick(deltaTime);
+
+      lastFrameTime = timestamp;
+      requestAnimationFrame(draw);
+    };
+
+    requestAnimationFrame(draw);
+  </script>
+</body>
+
+</html>
